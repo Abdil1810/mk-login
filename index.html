@@ -1,31 +1,33 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Firebase</title>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js"></script>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
-        input, button { margin: 10px; padding: 10px; width: 80%; max-width: 300px; }
-        ul { list-style-type: none; padding: 0; }
-        li { background: #f4f4f4; margin: 5px; padding: 10px; border-radius: 5px; }
-    </style>
+    <title>Aplikasi Login</title>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
 </head>
 <body>
-    <h2>Dashboard Firebase</h2>
-    <input type="text" id="dataInput" placeholder="Masukkan Data">
-    <button onclick="simpanData()">Simpan ke Firebase</button>
-    <h3>Data Tersimpan:</h3>
-    <ul id="dataList"></ul>
+    <h1>Selamat Datang di Aplikasi Kami</h1>
+
+    <!-- Form Login -->
+    <div id="login">
+        <h3>Login</h3>
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="login()">Login</button>
+    </div>
+
+    <!-- Tombol Logout (akan terlihat setelah login berhasil) -->
+    <div id="logout" style="display:none;">
+        <button onclick="logout()">Logout</button>
+    </div>
 
     <script>
-        // Konfigurasi Firebase
+        // Konfigurasi Firebase Anda
         const firebaseConfig = {
-            apiKey: "AIzaSyB4GPzXD682zwlvoD31h8WdCfZ1qFdRmf8",
+            apiKey: "AIzaSyB4GPzXD682zwlvoD31h8WdCfZ1qFdRmf8",  // Ganti dengan API key Anda
             authDomain: "mktv-9bf7b.firebaseapp.com",
-            databaseURL: "https://mktv-9bf7b.firebaseio.com",
             projectId: "mktv-9bf7b",
             storageBucket: "mktv-9bf7b.appspot.com",
             messagingSenderId: "714482873138",
@@ -34,30 +36,48 @@
 
         // Inisialisasi Firebase
         const app = firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+        const auth = firebase.auth();
 
-        function simpanData() {
-            let dataInput = document.getElementById("dataInput").value;
-            if (dataInput.trim() === "") return alert("Masukkan data!");
+        // Fungsi Login
+        function login() {
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
 
-            let dataRef = database.ref("data").push();
-            dataRef.set({ value: dataInput })
-                .then(() => {
-                    alert("Data berhasil disimpan!");
-                    document.getElementById("dataInput").value = "";
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    alert("Login berhasil! Selamat datang " + user.email);
+                    document.getElementById("login").style.display = "none";
+                    document.getElementById("logout").style.display = "block";
                 })
-                .catch(error => alert("Gagal menyimpan: " + error.message));
+                .catch((error) => {
+                    const errorMessage = error.message;
+                    alert("Error: " + errorMessage);
+                });
         }
 
-        // Menampilkan data dari Firebase
-        database.ref("data").on("value", (snapshot) => {
-            let dataList = document.getElementById("dataList");
-            dataList.innerHTML = "";
-            snapshot.forEach((childSnapshot) => {
-                let li = document.createElement("li");
-                li.textContent = childSnapshot.val().value;
-                dataList.appendChild(li);
+        // Fungsi Logout
+        function logout() {
+            auth.signOut().then(() => {
+                alert("Anda berhasil logout");
+                document.getElementById("login").style.display = "block";
+                document.getElementById("logout").style.display = "none";
+            }).catch((error) => {
+                alert("Error: " + error.message);
             });
+        }
+
+        // Menangani status pengguna login
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                // Pengguna sudah login
+                document.getElementById("login").style.display = "none";
+                document.getElementById("logout").style.display = "block";
+            } else {
+                // Pengguna belum login
+                document.getElementById("login").style.display = "block";
+                document.getElementById("logout").style.display = "none";
+            }
         });
     </script>
 </body>
