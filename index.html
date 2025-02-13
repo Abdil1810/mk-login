@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login ke MKTV</title>
+</head>
+<body>
+    <h1>Login ke MKTV</h1>
+    <button id="login-google">Login dengan Google</button>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, setPersistence, indexedDBLocalPersistence } 
+            from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
+        // 🔹 Konfigurasi Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyB4GPzXD682zwlvoD31h8WdCfZ1qFdRmf8",
+            authDomain: "mktv-9bf7b.firebaseapp.com",
+            projectId: "mktv-9bf7b",
+            storageBucket: "mktv-9bf7b.appspot.com",
+            messagingSenderId: "714482873138",
+            appId: "1:714482873138:web:ce44fd9833211167321d2b"
+        };
+
+        // 🔹 Inisialisasi Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        // 🔹 Aktifkan Penyimpanan Sesi agar tetap login setelah browser ditutup
+        setPersistence(auth, indexedDBLocalPersistence)
+            .then(() => {
+                console.log("Session persistence diaktifkan");
+            })
+            .catch((error) => {
+                console.error("Gagal mengaktifkan session persistence:", error);
+            });
+
+        // 🔹 Event Listener untuk Login dengan Google
+        document.getElementById("login-google").addEventListener("click", () => {
+            signInWithPopup(auth, provider)
+                .then((result) => {
+                    alert(`Login sukses: ${result.user.displayName}`);
+                    window.location.href = "dashboard.html?user=" + encodeURIComponent(result.user.email);
+                })
+                .catch((error) => {
+                    console.error("Error login:", error);
+                    alert(`Login gagal: ${error.message}`);
+                });
+        });
+    </script>
+</body>
+</html>
