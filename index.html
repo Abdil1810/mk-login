@@ -13,7 +13,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, setPersistence, indexedDBLocalPersistence } 
             from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
         // 🔹 Konfigurasi Firebase
         const firebaseConfig = {
@@ -22,14 +22,15 @@
             projectId: "mktv-9bf7b",
             storageBucket: "mktv-9bf7b.appspot.com",
             messagingSenderId: "714482873138",
-            appId: "1:714482873138:web:ce44fd9833211167321d2b"
+            appId: "1:714482873138:web:ce44fd9833211167321d2b",
+            databaseURL: "https://mktv-9bf7b-default-rtdb.firebaseio.com/"
         };
 
-        // 🔹 Inisialisasi Firebase & Firestore
+        // 🔹 Inisialisasi Firebase & Database
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
-        const db = getFirestore(app);
+        const db = getDatabase(app);
 
         // 🔹 Aktifkan Penyimpanan Sesi agar tetap login setelah browser ditutup
         setPersistence(auth, indexedDBLocalPersistence)
@@ -46,8 +47,8 @@
                 .then(async (result) => {
                     const user = result.user;
 
-                    // 🔹 Simpan data user ke Firestore
-                    await setDoc(doc(db, "users", user.uid), {
+                    // 🔹 Simpan data user ke Firebase Realtime Database
+                    await set(ref(db, "users/" + user.uid), {
                         name: user.displayName,
                         email: user.email,
                         photoURL: user.photoURL
