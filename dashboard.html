@@ -49,14 +49,6 @@
                 alert("Logout gagal: " + error.message);
             });
         });
-
-        // 🔹 Ambil Email dari URL (Jika Ada)
-        const urlParams = new URLSearchParams(window.location.search);
-        const userEmail = urlParams.get('user');
-
-        if (userEmail) {
-            alert("Selamat datang di MKTV, " + userEmail);
-        }
     </script>
 </body>
 </html>
