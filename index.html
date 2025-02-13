@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Firebase</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+        input, button { margin: 10px; padding: 10px; width: 80%; max-width: 300px; }
+        ul { list-style-type: none; padding: 0; }
+        li { background: #f4f4f4; margin: 5px; padding: 10px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h2>Dashboard Firebase</h2>
+    <input type="text" id="dataInput" placeholder="Masukkan Data">
+    <button onclick="simpanData()">Simpan ke Firebase</button>
+    <h3>Data Tersimpan:</h3>
+    <ul id="dataList"></ul>
+
+    <script>
+        // Konfigurasi Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyB4GPzXD682zwlvoD31h8WdCfZ1qFdRmf8",
+            authDomain: "mktv-9bf7b.firebaseapp.com",
+            databaseURL: "https://mktv-9bf7b.firebaseio.com",
+            projectId: "mktv-9bf7b",
+            storageBucket: "mktv-9bf7b.appspot.com",
+            messagingSenderId: "714482873138",
+            appId: "1:714482873138:web:ce44fd9833211167321d2b"
+        };
+
+        // Inisialisasi Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        function simpanData() {
+            let dataInput = document.getElementById("dataInput").value;
+            if (dataInput.trim() === "") return alert("Masukkan data!");
+
+            let dataRef = database.ref("data").push();
+            dataRef.set({ value: dataInput })
+                .then(() => {
+                    alert("Data berhasil disimpan!");
+                    document.getElementById("dataInput").value = "";
+                })
+                .catch(error => alert("Gagal menyimpan: " + error.message));
+        }
+
+        // Menampilkan data dari Firebase
+        database.ref("data").on("value", (snapshot) => {
+            let dataList = document.getElementById("dataList");
+            dataList.innerHTML = "";
+            snapshot.forEach((childSnapshot) => {
+                let li = document.createElement("li");
+                li.textContent = childSnapshot.val().value;
+                dataList.appendChild(li);
+            });
+        });
+    </script>
+</body>
+</html>
