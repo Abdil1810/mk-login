@@ -3,16 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login ke MKTV</title>
+    <title>Dashboard MKTV</title>
 </head>
 <body>
-    <h1>Login ke MKTV</h1>
-    <button id="login-google">Login dengan Google</button>
+    <h1>Selamat Datang, <span id="user-name">Pengguna</span>!</h1>
+    <img id="user-photo" src="" alt="Foto Profil" width="100">
+    <p>Email: <span id="user-email"></span></p>
+    <button id="logout">Logout</button>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, signInWithPopup, setPersistence, indexedDBLocalPersistence } 
-            from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
         // 🔹 Konfigurasi Firebase
         const firebaseConfig = {
@@ -27,28 +28,26 @@
         // 🔹 Inisialisasi Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        const provider = new GoogleAuthProvider();
 
-        // 🔹 Aktifkan Penyimpanan Sesi agar tetap login setelah browser ditutup
-        setPersistence(auth, indexedDBLocalPersistence)
-            .then(() => {
-                console.log("Session persistence diaktifkan");
-            })
-            .catch((error) => {
-                console.error("Gagal mengaktifkan session persistence:", error);
+        // 🔹 Cek apakah pengguna sudah login
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById("user-name").innerText = user.displayName;
+                document.getElementById("user-email").innerText = user.email;
+                document.getElementById("user-photo").src = user.photoURL;
+            } else {
+                // Jika tidak login, kembalikan ke halaman login
+                window.location.href = "index.html";
+            }
+        });
+
+        // 🔹 Logout
+        document.getElementById("logout").addEventListener("click", () => {
+            signOut(auth).then(() => {
+                window.location.href = "index.html";
+            }).catch((error) => {
+                alert("Logout gagal: " + error.message);
             });
-
-        // 🔹 Event Listener untuk Login dengan Google
-        document.getElementById("login-google").addEventListener("click", () => {
-            signInWithPopup(auth, provider)
-                .then((result) => {
-                    alert(`Login sukses: ${result.user.displayName}`);
-                    window.location.href = "dashboard.html?user=" + encodeURIComponent(result.user.email);
-                })
-                .catch((error) => {
-                    console.error("Error login:", error);
-                    alert(`Login gagal: ${error.message}`);
-                });
         });
     </script>
 </body>
